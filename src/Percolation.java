@@ -1,9 +1,10 @@
 import edu.princeton.cs.algs4.*;
 
 public class Percolation {
-    private int  len,topvirtual,bottomvirtual,lensqr;
+    private final int   len,lensqr;
     WeightedQuickUnionUF grid;
-    private int[] opened;
+    private final int[] opened;
+    private int topvirtual,bottomvirtual;
     public Percolation(int n){
         if (n <= 0) {
             throw new IllegalArgumentException("Given n <= 0");
@@ -89,7 +90,7 @@ public class Percolation {
     // does the system percolate?
     public boolean percolates(){
 
-        return grid.connected(topvirtual,bottomvirtual);
+        return grid.find(topvirtual)== grid.find(bottomvirtual);
     }
 
 }
