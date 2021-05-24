@@ -1,8 +1,10 @@
-import edu.princeton.cs.algs4.*;
+import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.StdRandom;
+import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
     private final int   len,lensqr;
-    WeightedQuickUnionUF grid;
+    private final WeightedQuickUnionUF grid;
     private final int[] opened;
     private int topvirtual,bottomvirtual;
     public Percolation(int n){
@@ -21,7 +23,7 @@ public class Percolation {
         opened[bottomvirtual]=1;
         grid =new WeightedQuickUnionUF(lensqr);
     }
-     public void join(int row,int col,int i){
+     private void join(int row,int col,int i){
         int up,down,left,right;
         if(row-1 >=0){
             up=(row-1)*len+col;
@@ -55,28 +57,47 @@ public class Percolation {
 
      }
     // opens the site (row, col) if it is not open already
+    private void validate(int p) {
+        if (p < 0 || p > len) {
+            throw new IllegalArgumentException("index " + p + " is not between 0 and " + (len-1));
+        }
+    }
     public void open(int row, int col){
-        int i=row*len+col;
+        int trow=row-1;
+        int tcol=col-1;
+        validate(trow);
+        validate(tcol);
+        int i=trow*len+tcol;
      if(isOpen(row, col)){
-         row = StdRandom.uniform(len);
-         col = StdRandom.uniform(len);
+         join(trow,tcol,i);
+         row = StdRandom.uniform(1,len+1);
+         col = StdRandom.uniform(1,len+1);
          open(row,col);
      }
-     else{
+     else if (isFull(row, col)){
         opened[i]=1;
-        join(row,col,i);
+        join(trow,tcol,i);
      }
     }
 
     // is the site (row, col) open?
     public boolean isOpen(int row, int col){
-        int i= row*len+col;
+        int trow=row-1;
+        int tcol=col-1;
+        validate(trow);
+        validate(tcol);
+        int i= trow*len+tcol;
         return opened[i]==1;
     }
 
     // is the site (row, col) full?
-     /**public boolean isFull(int row, int col){
-       return opened[row*len+col]==row*len+col;}**/
+     public boolean isFull(int row, int col){
+         int trow=row-1;
+         int tcol=col-1;
+         validate(trow);
+         validate(tcol);
+       return opened[trow*len+tcol]==0;
+    }
 
     // returns the number of open sites
     public int numberOfOpenSites(){
@@ -90,7 +111,20 @@ public class Percolation {
     // does the system percolate?
     public boolean percolates(){
 
-        return grid.find(topvirtual)== grid.find(bottomvirtual);
+        return grid.find(topvirtual)==grid.find(bottomvirtual);
+    }
+    static public void main(String[] args){
+        int n=Integer.parseInt(args[0]);
+        int row, col;
+        double res ;
+        Percolation p = new Percolation(n);
+            while (!p.percolates()) {
+                row = StdRandom.uniform(1,n+1);
+                col = StdRandom.uniform(1,n+1);
+                p.open(row, col);
+            }
+            res= (double) p.numberOfOpenSites() / (n * n);
+        StdOut.println(res);
     }
 
 }

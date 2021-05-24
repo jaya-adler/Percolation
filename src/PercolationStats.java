@@ -1,10 +1,10 @@
-import edu.princeton.cs.algs4.*;
+import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
 
 public class PercolationStats {
-    double[] res;
-    int simulation;
+    private final double[] res;
+   private final int simulation;
     public PercolationStats(int n, int trials) {
         if (n <= 0 || trials <= 0) {
             throw new IllegalArgumentException("Given n <= 0 || trials <= 0");
@@ -15,8 +15,8 @@ public class PercolationStats {
         Percolation p = new Percolation(n);
         for (int i = 0; i < trials; i++) {
             while (!p.percolates()) {
-                row = StdRandom.uniform(n);
-                col = StdRandom.uniform(n);
+                row = StdRandom.uniform(1,n+1);
+                col = StdRandom.uniform(1,n+1);
                 p.open(row, col);
             }
             res[i]= (double) p.numberOfOpenSites() / (n * n);
@@ -48,6 +48,6 @@ public class PercolationStats {
 PercolationStats p = new PercolationStats(Integer.parseInt(args[0]),Integer.parseInt(args[1]));
         StdOut.println("mean                        ="+ p.mean());
         StdOut.println("stddev                      ="+p.stddev());
-        StdOut.println("95% confidence interval     =["+p.confidenceLo()+"]["+p.confidenceHi()+"]");
+        StdOut.println("95% confidence interval     =["+p.confidenceLo()+",  "+p.confidenceHi()+"]");
     }
 }
