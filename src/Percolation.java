@@ -19,9 +19,7 @@ public class Percolation {
         for(int i=0;i<lensqr;i++){
             opened[i]=0;
         }
-        opened[topvirtual]=1;
-        opened[bottomvirtual]=1;
-        grid =new WeightedQuickUnionUF(lensqr);
+         grid =new WeightedQuickUnionUF(lensqr);
     }
      private void join(int row,int col,int i){
         int up,down,left,right;
@@ -36,7 +34,7 @@ public class Percolation {
         if (row+1 < len){
             down=(row+1)*len+col;
             if (opened[down]==1) {
-                grid.union(i,down);
+                grid.union(down,i);
             }
         }
         else {
@@ -69,12 +67,13 @@ public class Percolation {
         validate(tcol);
         int i=trow*len+tcol;
      if(isOpen(row, col)){
-         join(trow,tcol,i);
+         if(!isFull(row, col)){
+         join(trow,tcol,i);}
          row = StdRandom.uniform(1,len+1);
          col = StdRandom.uniform(1,len+1);
          open(row,col);
      }
-     else if (isFull(row, col)){
+     else {
         opened[i]=1;
         join(trow,tcol,i);
      }
@@ -96,7 +95,21 @@ public class Percolation {
          int tcol=col-1;
          validate(trow);
          validate(tcol);
-       return opened[trow*len+tcol]==0;
+         int i=trow*len+tcol;
+         if(opened[i]==1 ){
+             if(i==topvirtual || i==bottomvirtual){ return  true;
+             }
+             else if (grid.find(i)!=i){
+                 return true;
+             }
+             else{
+                 if (i+1<lensqr){if(grid.find(i+1)==i) return true;}
+                 if(i-1>=0){ if (grid.find(i-1)==i)return true;}
+                 if(i+len<lensqr){if (grid.find(i+len)==i) return true;}
+                 if (i-len>=0){ return grid.find(i - len) == i; }
+             }
+         }
+         return false;
     }
 
     // returns the number of open sites
@@ -122,7 +135,23 @@ public class Percolation {
                 row = StdRandom.uniform(1,n+1);
                 col = StdRandom.uniform(1,n+1);
                 p.open(row, col);
+                StdOut.print(p.opened[0]+" ");
+                for(int gr=1;gr< p.lensqr;gr++){
+                    if(gr%n==0){
+                        StdOut.print("\n"+p.opened[gr]+" ");
+                    }
+                    else {StdOut.print(p.opened[gr]+" ");}
+                }
+                StdOut.println("\n-----------");
             }
+        StdOut.print(p.opened[0]+" ");
+        for(int gr=1;gr< p.lensqr;gr++){
+            if(gr%n==0){
+                StdOut.print("\n"+p.opened[gr]+" ");
+            }
+            else {StdOut.print(p.opened[gr]+" ");}
+        }
+        StdOut.println("\n");
             res= (double) p.numberOfOpenSites() / (n * n);
         StdOut.println(res);
     }

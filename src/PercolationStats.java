@@ -12,14 +12,17 @@ public class PercolationStats {
          simulation=trials;
         res= new double[simulation];
         int row, col;
-        Percolation p = new Percolation(n);
+        Percolation[] p = new Percolation[trials];
+        for (int j=0;j<trials;j++){
+            p[j]=new Percolation(n);
+        }
         for (int i = 0; i < trials; i++) {
-            while (!p.percolates()) {
+            while (!p[i].percolates()) {
                 row = StdRandom.uniform(1,n+1);
                 col = StdRandom.uniform(1,n+1);
-                p.open(row, col);
+                p[i].open(row, col);
             }
-            res[i]= (double) p.numberOfOpenSites() / (n * n);
+            res[i]= (double) p[i].numberOfOpenSites() / (n * n);
         }
     }
 
