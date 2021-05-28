@@ -6,7 +6,7 @@ public class Percolation {
     private final int   len,lensqr;
     private final WeightedQuickUnionUF grid;
     private final int[] opened;
-    private int topvirtual,bottomvirtual;
+    //private int topvirtual,bottomvirtual;
     public Percolation(int n){
         if (n <= 0) {
             throw new IllegalArgumentException("Given n <= 0");
@@ -14,44 +14,55 @@ public class Percolation {
         len=n;
         lensqr=n*n;
         opened = new int[lensqr];
-        topvirtual=StdRandom.uniform(0,len);
-        bottomvirtual=StdRandom.uniform(lensqr-len,lensqr);
+        //topvirtual=StdRandom.uniform(0,len);
+        //bottomvirtual=StdRandom.uniform(lensqr-len,lensqr);
         for(int i=0;i<lensqr;i++){
             opened[i]=0;
         }
-         grid =new WeightedQuickUnionUF(lensqr);
+         grid =new WeightedQuickUnionUF(lensqr+2);
     }
-     private void join(int row,int col,int i){
-        int up,down,left,right;
-        if(row-1 >=0){
-            up=(row-1)*len+col;
-            if (opened[up]==1) {
+     private void join(int i){
+         if (i+1<lensqr && (i+1)%len!=0){ if (opened[i+1]==1) grid.union(i,i+1); }
+         if(i-1>=0 && i%len!=0){ if(opened[i-1]==1) grid.union(i,i-1);}
+         if(i+len<lensqr){
+             if(opened[i+len]==1) grid.union(i,i+len);
+         }
+         else { grid.union(i,lensqr+1);}
+         if (i-len>=0){ if(opened[i-len]==1) grid.union(i,i-len);
+         }
+         else { grid.union(i,lensqr);}
+   /*      if(trow-1 >=0){
+            up=(trow-1)*len+tcol;
+            if (opened[up]==1 && isFull(trow,col)) {
                 grid.union(i,up);
             }
+            else if (up==topvirtual || up==bottomvirtual){ grid.union(i,up);}
         }else {
             topvirtual=i;
         }
-        if (row+1 < len){
-            down=(row+1)*len+col;
-            if (opened[down]==1) {
+        if (trow+1 < len){
+            down=(trow+1)*len+tcol;
+            if (opened[down]==1 && isFull(row+1, col)) {
                 grid.union(down,i);
             }
+            else if (down==topvirtual || down==bottomvirtual){ grid.union(i,down);}
         }
         else {
             bottomvirtual=i;
         }
-         if (col+1<len){
-            right=row*len+col+1;
-            if (opened[right]==1) {
+         if (tcol+1<len){
+            right=trow*len+tcol+1;
+            if (opened[right]==1 && isFull(row, col+1)) {
                 grid.union(i,right);
             }
+
         }
-         if (col-1 >=0){
-            left=row*len+col-1;
-            if (opened[left]==1) {
+         if (tcol-1 >=0 ){
+            left=trow*len+tcol-1;
+            if (opened[left]==1 && isFull(row, tcol)) {
                 grid.union(i,left);
             }
-         }
+         }**/
 
      }
     // opens the site (row, col) if it is not open already
@@ -68,14 +79,14 @@ public class Percolation {
         int i=trow*len+tcol;
      if(isOpen(row, col)){
          if(!isFull(row, col)){
-         join(trow,tcol,i);}
+         join(i);}
          row = StdRandom.uniform(1,len+1);
          col = StdRandom.uniform(1,len+1);
          open(row,col);
      }
      else {
         opened[i]=1;
-        join(trow,tcol,i);
+        join(i);
      }
     }
 
@@ -96,19 +107,7 @@ public class Percolation {
          validate(trow);
          validate(tcol);
          int i=trow*len+tcol;
-         if(opened[i]==1 ){
-             if(i==topvirtual || i==bottomvirtual){ return  true;
-             }
-             else if (grid.find(i)!=i){
-                 return true;
-             }
-             else{
-                 if (i+1<lensqr){if(grid.find(i+1)==i) return true;}
-                 if(i-1>=0){ if (grid.find(i-1)==i)return true;}
-                 if(i+len<lensqr){if (grid.find(i+len)==i) return true;}
-                 if (i-len>=0){ return grid.find(i - len) == i; }
-             }
-         }
+         if(opened[i]==1 ) return grid.find(i) == grid.find(lensqr);
          return false;
     }
 
@@ -124,7 +123,7 @@ public class Percolation {
     // does the system percolate?
     public boolean percolates(){
 
-        return grid.find(topvirtual)==grid.find(bottomvirtual);
+        return grid.find(lensqr)==grid.find(lensqr+1);
     }
     static public void main(String[] args){
         int n=Integer.parseInt(args[0]);
